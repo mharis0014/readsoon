@@ -27,6 +27,8 @@ const TopPickGridCardComponent = ({ id, title, image, onPress }: TopPickGridCard
                 style={styles.topPickImage}
                 contentFit="cover"
                 transition={300}
+                priority="high"
+                cachePolicy="disk"
                 placeholder={IMAGES.ARTICLE_PLACEHOLDER}
                 placeholderContentFit="cover"
             />

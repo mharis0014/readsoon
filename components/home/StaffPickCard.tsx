@@ -1,6 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { qk } from '../../lib/queryKeys';
+import { ArticleService } from '../../services/articleService';
 import { homeStyles as styles } from '../../styles/home';
 
 interface StaffPickCardProps {
@@ -13,6 +16,8 @@ interface StaffPickCardProps {
 }
 
 const StaffPickCardComponent = ({ id, title, author, date, image, onPress }: StaffPickCardProps) => {
+    const queryClient = useQueryClient();
+
     // Parse date to extract day and month
     const parseDate = (dateString: string) => {
         try {
@@ -20,15 +25,15 @@ const StaffPickCardComponent = ({ id, title, author, date, image, onPress }: Sta
             if (!dateString || dateString.trim() === '') {
                 throw new Error('Empty date string');
             }
-            
+
             // Create date object from the string
             const date = new Date(dateString);
-            
+
             // Check if the date is valid
             if (isNaN(date.getTime())) {
                 throw new Error('Invalid date');
             }
-            
+
             const day = date.getDate().toString();
             const month = date.toLocaleDateString('en-US', { month: 'short' });
             return { day, month };
@@ -36,19 +41,35 @@ const StaffPickCardComponent = ({ id, title, author, date, image, onPress }: Sta
             console.warn('Failed to parse date:', dateString, error);
             // Return current date as fallback
             const now = new Date();
-            return { 
-                day: now.getDate().toString(), 
-                month: now.toLocaleDateString('en-US', { month: 'short' }) 
+            return {
+                day: now.getDate().toString(),
+                month: now.toLocaleDateString('en-US', { month: 'short' })
             };
         }
     };
 
     const { day, month } = parseDate(date);
 
+    const handlePress = async () => {
+        // Prefetch the article data before navigation
+        try {
+            await queryClient.prefetchQuery({
+                queryKey: qk.articleById(id),
+                queryFn: () => ArticleService.getArticle(id),
+                staleTime: 1000 * 60 * 10, // 10 minutes
+            });
+        } catch (error) {
+            console.error('Error prefetching article:', error);
+        }
+
+        // Navigate to article detail
+        onPress?.();
+    };
+
     return (
         <TouchableOpacity
             style={styles.staffCard}
-            onPress={onPress}
+            onPress={handlePress}
             accessible
             accessibilityLabel={`Staff pick: ${title} by ${author}`}
         >
@@ -57,6 +78,8 @@ const StaffPickCardComponent = ({ id, title, author, date, image, onPress }: Sta
                 style={styles.staffImage}
                 contentFit="cover"
                 transition={300}
+                priority="high"
+                cachePolicy="disk"
             />
             <View style={styles.staffOverlay}>
                 <View style={styles.dateBadge}>

@@ -1,7 +1,8 @@
 
 import { BlurView } from 'expo-blur';
 import React from 'react';
-import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Colors } from '../../constants/Colors';
 import ICONS from '../../constants/Icons';
 import { spacing, typography } from '../../utils/responsive';

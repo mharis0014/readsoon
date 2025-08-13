@@ -59,6 +59,8 @@ export function HomeHeader({ username, textColor, subtitleColor, fontSize, avata
                                 borderWidth: spacing.xs / 2,
                             }
                         ]}
+                        priority="high"
+                        cachePolicy="disk"
                     />
                 </TouchableOpacity>
             </View>

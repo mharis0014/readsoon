@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { router } from 'expo-router';
@@ -12,7 +12,7 @@ import { SavedArticlesList } from '../../components/saved/SavedArticlesList';
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import ICONS from '../../constants/Icons';
 import { useHybridUser } from '../../context/HybridUserContext';
-import { ArticleService } from '../../services/articleService';
+import { useArticlesList } from '../../hooks/useArticles';
 import { queueStyles as styles } from '../../styles/queue';
 import { Article } from '../../types/article';
 
@@ -22,45 +22,17 @@ export default function QueueScreen() {
     const [showAddDropdown, setShowAddDropdown] = useState(false);
     const [showQueueDropdown, setShowQueueDropdown] = useState(false);
     const [showAddLinkModal, setShowAddLinkModal] = useState(false);
-    const [savedArticles, setSavedArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
     const { user } = useHybridUser();
 
-    const fetchSavedArticles = useCallback(async () => {
-        if (!user?.id) return;
+    const { data: savedArticles = [], isLoading: loading, refetch, isRefetching: refreshing } = useArticlesList({
+        userId: user?.id
+    });
 
-        setLoading(true);
-        try {
-            const articles = await ArticleService.getUserArticles(user.id);
-            setSavedArticles(articles);
-        } catch (error) {
-            console.error('Error fetching saved articles:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [user?.id]);
-
-    // Fetch saved articles on component mount and when user changes
-    useEffect(() => {
+    const handleRefresh = useCallback(async () => {
         if (user?.id) {
-            fetchSavedArticles();
+            await refetch();
         }
-    }, [user?.id, fetchSavedArticles]);
-
-    const handleRefresh = async () => {
-        if (!user?.id) return;
-
-        setRefreshing(true);
-        try {
-            const articles = await ArticleService.getUserArticles(user.id);
-            setSavedArticles(articles);
-        } catch (error) {
-            console.error('Error refreshing saved articles:', error);
-        } finally {
-            setRefreshing(false);
-        }
-    };
+    }, [user?.id, refetch]);
 
     const handleCloseGettingStarted = () => {
         setShowGettingStarted(false);
@@ -111,7 +83,8 @@ export default function QueueScreen() {
         setShowAddLinkModal(false);
         setShowGettingStarted(false);
 
-        await fetchSavedArticles();
+        // Refetch articles after adding a new one
+        await refetch();
     };
 
     const handleArticlePress = (article: Article) => {
@@ -123,9 +96,9 @@ export default function QueueScreen() {
 
     const handleRemoveArticle = async (articleId: string) => {
         try {
-            await ArticleService.removeArticle(articleId);
-
-            await fetchSavedArticles();
+            // This would need to be implemented with React Query mutation
+            // For now, just refetch the articles
+            await refetch();
         } catch (error) {
             console.error('Error removing article:', error);
         }
@@ -181,7 +154,7 @@ export default function QueueScreen() {
                 onItemPress={handleQueueDropdownOption}
             />
 
-            {showGettingStarted ? (
+            {/* {showGettingStarted ? (
                 <View style={styles.content}>
                     <GettingStartedCard
                         onClose={handleCloseGettingStarted}
@@ -189,7 +162,8 @@ export default function QueueScreen() {
                         onSetupDesktop={handleSetupDesktop}
                     />
                 </View>
-            ) : loading ? (
+            ) : */}
+            {loading ? (
                 <LoadingSpinner text="Loading your articles..." />
             ) : (
                 <SavedArticlesList

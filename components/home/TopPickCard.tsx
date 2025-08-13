@@ -1,7 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import IMAGES from '../../constants/Images';
+import { qk } from '../../lib/queryKeys';
+import { ArticleService } from '../../services/articleService';
 import { homeStyles as styles } from '../../styles/home';
 
 interface TopPickCardProps {
@@ -12,14 +15,31 @@ interface TopPickCardProps {
 }
 
 const TopPickCardComponent = ({ id, title, image, onPress }: TopPickCardProps) => {
+    const queryClient = useQueryClient();
 
     const imageSource = typeof image === 'string' ? { uri: image } : image;
     const truncatedTitle = title.length > 20 ? title.substring(0, 20) + '...' : title;
 
+    const handlePress = async () => {
+        // Prefetch the article data before navigation
+        try {
+            await queryClient.prefetchQuery({
+                queryKey: qk.articleById(id),
+                queryFn: () => ArticleService.getArticle(id),
+                staleTime: 1000 * 60 * 10, // 10 minutes
+            });
+        } catch (error) {
+            console.error('Error prefetching article:', error);
+        }
+
+        // Navigate to article detail
+        onPress?.();
+    };
+
     return (
         <TouchableOpacity
             style={styles.topPickCard}
-            onPress={onPress}
+            onPress={handlePress}
             accessible
             accessibilityLabel={`Top pick: ${title}`}
         >
@@ -28,6 +48,8 @@ const TopPickCardComponent = ({ id, title, image, onPress }: TopPickCardProps) =
                 style={styles.topPickImage}
                 contentFit="cover"
                 transition={300}
+                priority="high"
+                cachePolicy="disk"
                 placeholder={IMAGES.ARTICLE_PLACEHOLDER}
                 placeholderContentFit="cover"
             />

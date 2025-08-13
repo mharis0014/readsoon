@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FlatList, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { SectionHeader } from '../../components/home/SectionHeader';
@@ -9,36 +9,16 @@ import { TopPickCard } from '../../components/home/TopPickCard';
 import { Colors } from '../../constants/Colors';
 
 import { useHybridUser } from '../../context/HybridUserContext';
-import { ArticleService } from '../../services/articleService';
+import { useLinks } from '../../hooks/useLinks';
 import { homeStyles as styles } from '../../styles/home';
-import { Article } from '../../types/article';
 import { getFirstName } from '../../utils/greeting';
 
 const HomeScreen = () => {
   const router = useRouter();
   const { user } = useHybridUser();
-  const [savedArticles, setSavedArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Fetch saved articles
-  useEffect(() => {
-    const fetchSavedArticles = async () => {
-      if (user?.id) {
-        try {
-          const articles = await ArticleService.getUserArticles(user.id);
-          setSavedArticles(articles);
-        } catch (error) {
-          console.error('Error fetching saved articles:', error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    };
-
-    fetchSavedArticles();
-  }, [user?.id]);
+  const { data: savedArticles = [], isLoading: loading } = useLinks({
+    userId: user?.id,
+  });
 
   const handleTopPicksPress = () => router.push('/top-picks');
   const handleStaffPicksPress = () => router.push('/staff-picks');
@@ -69,8 +49,8 @@ const HomeScreen = () => {
             renderItem={({ item }) => (
               <TopPickCard
                 id={item.id}
-                title={item.title}
-                image={item.imageUrl}
+                title={item.title || 'Untitled'}
+                image={item.image_url || ''}
                 onPress={() => handleTopPickPress(item.id)}
               />
             )}
@@ -104,10 +84,10 @@ const HomeScreen = () => {
             renderItem={({ item }) => (
               <StaffPickCard
                 id={item.id}
-                title={item.title}
-                image={item.imageUrl}
-                author={item.source || 'Unknown'}
-                date={item.savedAt}
+                title={item.title || 'Untitled'}
+                image={item.image_url || ''}
+                author={item.domain || 'Unknown'}
+                date={item.created_at}
                 onPress={() => handleStaffPickPress(item.id)}
               />
             )}

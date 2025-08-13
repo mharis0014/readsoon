@@ -5,9 +5,11 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { ArticleProvider } from '../context/ArticleContext';
+import { ArticleImageProvider } from '../context/ArticleImageContext';
 import { HybridUserProvider, useHybridUser } from '../context/HybridUserContext';
 import { ThemeProvider as AppThemeProvider } from '../context/ThemeContext';
 import { TopPicksProvider } from '../context/TopPicksContext';
+import { withPersistedQueryClient } from '../lib/queryClient';
 
 function LoadingScreen() {
   return (
@@ -104,25 +106,29 @@ export default function RootLayout() {
     );
   }
 
-  return (
-    <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
-      <HybridUserProvider>
-        <AppThemeProvider>
-          <ArticleProvider>
-            <TopPicksProvider>
-              <AuthCheck />
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="welcome" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="article-detail" options={{ headerShown: false }} />
-                <Stack.Screen name="text-to-speech" options={{ headerShown: false }} />
-              </Stack>
-            </TopPicksProvider>
-          </ArticleProvider>
-        </AppThemeProvider>
-      </HybridUserProvider>
-    </View>
-  );
+  return withPersistedQueryClient({
+    children: (
+      <View style={{ flex: 1, backgroundColor: '#ffffff' }}>
+        <HybridUserProvider>
+          <AppThemeProvider>
+            <ArticleProvider>
+              <ArticleImageProvider>
+                <TopPicksProvider>
+                  <AuthCheck />
+                  <Stack screenOptions={{ headerShown: false }}>
+                    <Stack.Screen name="welcome" options={{ headerShown: false }} />
+                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="article-detail" options={{ headerShown: false }} />
+                    <Stack.Screen name="text-to-speech" options={{ headerShown: false }} />
+                  </Stack>
+                </TopPicksProvider>
+              </ArticleImageProvider>
+            </ArticleProvider>
+          </AppThemeProvider>
+        </HybridUserProvider>
+      </View>
+    )
+  });
 }

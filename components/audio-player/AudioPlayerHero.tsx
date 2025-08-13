@@ -22,15 +22,15 @@ export function AudioPlayerHero({ article, textColor, subtitleColor }: AudioPlay
 
     return (
         <View style={styles.container}>
-            {/* Main content */}
             <View style={styles.contentContainer}>
-                {/* Large image with shadow */}
                 <View style={styles.imageContainer}>
                     <Image
                         source={imageSource}
                         style={styles.image}
                         contentFit="cover"
                         transition={300}
+                        priority="high"
+                        cachePolicy="disk"
                     />
                 </View>
 
