@@ -325,4 +325,8 @@ export class ArticleService {
             isSaved: true, // If it's in the database, it's saved
         };
     }
-} 
+}
+
+export function fetchArticleById(id: string): any {
+    throw new Error('Function not implemented.');
+}

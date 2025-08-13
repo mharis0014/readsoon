@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
+import { Image } from 'expo-image';
 import React from 'react';
-import { Image, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Colors } from '@/constants/Colors';
 import ICONS from '../../constants/Icons';

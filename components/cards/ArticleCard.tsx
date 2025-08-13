@@ -50,6 +50,8 @@ export function ArticleCard({
                     style={styles.image}
                     contentFit="cover"
                     transition={300}
+                    priority="high"
+                    cachePolicy="disk"
                     onError={() => setImageError(true)}
                 />
             ) : (

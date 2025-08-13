@@ -5,6 +5,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { User } from '../../types/user';
 import { ThemedText } from '../layout/ThemedText';
+import IMAGES from '@/constants/Images';
 
 interface UserCardProps {
     user: User | null;
@@ -52,7 +53,19 @@ export function UserCard({
             >
                 <Image
                     source={user?.avatar || require('@/assets/images/user.jpg')}
-                    style={[styles.avatar, { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }]}
+                    style={[
+                        styles.avatar,
+                        {
+                            width: avatarSize,
+                            height: avatarSize,
+                            borderRadius: avatarSize / 2,
+                        }
+                    ]}
+                    contentFit="cover"
+                    priority="high"
+                    cachePolicy="disk"
+                    placeholder={IMAGES.USER}
+                    placeholderContentFit="cover"
                 />
 
                 <View style={styles.userInfo}>

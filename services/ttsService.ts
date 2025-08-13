@@ -67,6 +67,11 @@ export class TTSService {
             // Create audio player from file
             const player = createAudioPlayer({ uri: tempUri });
 
+            // Verify the player has the required methods
+            if (!player || typeof player.play !== 'function') {
+                throw new Error('Failed to create valid AudioPlayer');
+            }
+
             return player;
         } catch (error) {
             console.error('Error converting base64 to audio:', error);

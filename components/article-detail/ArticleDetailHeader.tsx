@@ -1,7 +1,8 @@
 import IMAGES from '@/constants/Images';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import ICONS from '../../constants/Icons';
@@ -39,7 +40,16 @@ export default function ArticleDetailHeader({
     return (
         <View>
             <View style={styles.heroContainer}>
-                <Image source={image} style={styles.heroImage} />
+                <Image
+                    source={image}
+                    style={styles.heroImage}
+                    contentFit="cover"
+                    transition={300}
+                    priority="high"
+                    cachePolicy="disk"
+                    placeholder={IMAGES.ARTICLE_PLACEHOLDER}
+                    placeholderContentFit="cover"
+                />
 
                 {/* Navigation Bar */}
                 <SafeAreaView style={styles.headerContent}>
@@ -71,6 +81,12 @@ export default function ArticleDetailHeader({
                     <Image
                         source={authorImage || IMAGES.USER}
                         style={styles.profileImage}
+                        contentFit="cover"
+                        transition={300}
+                        priority="high"
+                        cachePolicy="disk"
+                        placeholder={IMAGES.USER}
+                        placeholderContentFit="cover"
                     />
                     <View style={styles.profileText}>
                         <Text style={styles.authorName}>{author}</Text>

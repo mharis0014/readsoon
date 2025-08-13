@@ -1,5 +1,6 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { Image } from 'expo-image';
+import { View } from 'react-native';
 
 import { onboardingStyles } from '../../styles/onboarding';
 import { ThemedText } from '../layout/ThemedText';

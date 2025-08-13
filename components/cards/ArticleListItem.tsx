@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import { Colors } from '../../constants/Colors';
 import IMAGES from '../../constants/Images';
+import { qk } from '../../lib/queryKeys';
+import { ArticleService } from '../../services/articleService';
 import { Article } from '../../types/article';
 import { spacing, typography } from '../../utils/responsive';
 
@@ -16,18 +19,33 @@ interface ArticleListItemProps {
 
 export function ArticleListItem({ article, onPress, style }: ArticleListItemProps) {
     const [imageError, setImageError] = useState(false);
+    const queryClient = useQueryClient();
 
-    // Handle image source - can be local asset or remote URL
     const imageSource = typeof article.imageUrl === 'number'
         ? article.imageUrl
         : article.imageUrl
             ? { uri: article.imageUrl }
             : IMAGES.ARTICLE_PLACEHOLDER;
 
+    const handlePress = async () => {
+        try {
+            await queryClient.prefetchQuery({
+                queryKey: qk.articleById(article.id),
+                queryFn: () => ArticleService.getArticle(article.id),
+                staleTime: 1000 * 60 * 10, // 10 minutes
+            });
+        } catch (error) {
+            console.error('Error prefetching article:', error);
+        }
+
+        // Navigate to article detail
+        onPress();
+    };
+
     return (
         <TouchableOpacity
             style={[styles.container, style]}
-            onPress={onPress}
+            onPress={handlePress}
             activeOpacity={0.7}
         >
             {/* Left side - Image */}
@@ -37,6 +55,8 @@ export function ArticleListItem({ article, onPress, style }: ArticleListItemProp
                     style={styles.image}
                     contentFit="cover"
                     transition={300}
+                    priority="high"
+                    cachePolicy="disk"
                     onError={() => setImageError(true)}
                 />
             ) : (

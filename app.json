@@ -54,6 +54,9 @@
     "experiments": {
       "typedRoutes": true
     },
+    "router": {
+      "src": "app"
+    },
     "description": "Save and organize articles from around the web. Listen to your saved articles with text-to-speech."
   }
 }

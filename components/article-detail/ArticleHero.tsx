@@ -26,6 +26,8 @@ export function ArticleHero({ article, textColor, subtitleColor }: ArticleHeroPr
                     style={styles.image}
                     contentFit="cover"
                     transition={300}
+                    priority="high"
+                    cachePolicy="disk"
                 />
             </View>
 

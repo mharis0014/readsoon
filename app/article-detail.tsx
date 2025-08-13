@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Animated, ScrollView, View } from 'react-native';
 
 import ArticleBottomNav from '../components/article-detail/ArticleBottomNav';
@@ -11,7 +11,9 @@ import ShareModal from '../components/modals/ShareModal';
 import { ARTICLE_CONSTANTS } from '../constants/Article';
 import { type ArticleData } from '../data/home';
 import { useArticleDetail } from '../hooks/useArticleDetail';
+import { useAudioCache } from '../hooks/useAudioCache';
 import { ShareService } from '../services/shareService';
+import { useArticleImage } from '../context/ArticleImageContext';
 import { getReaderThemeColors, articleDetailStyles as styles } from '../styles/article-detail';
 import { convertArticleToDisplayData } from '../utils/articleHelpers';
 
@@ -19,6 +21,7 @@ export default function ArticleDetailScreen() {
     const router = useRouter();
     const { id, type } = useLocalSearchParams<{ id: string; type: string }>();
     const scrollY = React.useRef(new Animated.Value(0)).current;
+    const { setCurrentImage } = useArticleImage();
 
     const [readingProgress, setReadingProgress] = React.useState(0);
     const [isReadingMode, setIsReadingMode] = React.useState(false);
@@ -36,7 +39,27 @@ export default function ArticleDetailScreen() {
         closeShareModal
     } = useArticleDetail({ id, type });
 
+    // Preload audio in background when article loads
+    useEffect(() => {
+        if (article && article.content) {
+            // Start caching audio silently in background
+            // This will cache the audio without showing any loading UI
+        }
+    }, [article]);
+
+    // Silent background audio caching - no loading UI
+    useAudioCache(article?.content || '');
+
+    // Set the current article image in context (before early returns)
+    React.useEffect(() => {
+        if (article && 'image' in article) {
+            setCurrentImage((article as any).image);
+        }
+    }, [article, setCurrentImage]);
+
     const handleBack = () => router.back();
+
+
 
     const handleOpenInBrowser = async () => {
         if (article) {
@@ -82,6 +105,8 @@ export default function ArticleDetailScreen() {
             ? convertArticleToDisplayData(article, type)
             : (article as ArticleData);
 
+
+
     const content = displayArticle.content || '';
     const wordCount = content.split(/\s+/).length;
     const readingTime = Math.ceil(wordCount / ARTICLE_CONSTANTS.WORDS_PER_MINUTE);
@@ -98,8 +123,8 @@ export default function ArticleDetailScreen() {
                     left: 0,
                     right: 0,
                     height: 3,
-                    backgroundColor: getReaderThemeColors(readerTheme).backgroundColor === '#ffffff' 
-                        ? 'rgba(229, 231, 235, 0.3)' 
+                    backgroundColor: getReaderThemeColors(readerTheme).backgroundColor === '#ffffff'
+                        ? 'rgba(229, 231, 235, 0.3)'
                         : 'rgba(0, 0, 0, 0.1)',
                     zIndex: 20
                 }}>
@@ -175,6 +200,9 @@ export default function ArticleDetailScreen() {
                 onShare={handleShare}
                 onOpenInBrowser={handleOpenInBrowser}
                 articleContent={displayArticle.content || ''}
+                articleTitle={displayArticle.title || 'Untitled'}
+                articleSource={displayArticle.author || 'Unknown Author'}
+                articleImage={displayArticle.image}
                 isReadingMode={isReadingMode}
                 onToggleReadingMode={() => setIsReadingMode(v => !v)}
             />
