@@ -1,0 +1,211 @@
+import { StyleSheet } from 'react-native';
+import { Colors } from '../constants/Colors';
+import { SCREEN_HEIGHT, spacing, TAB_BAR_HEIGHT, typography } from '../utils/responsive';
+
+export const queueStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: Colors.white,
+        paddingBottom: TAB_BAR_HEIGHT,
+    },
+    header: {
+        backgroundColor: Colors.red,
+        paddingTop: 0, // Override safe area
+        paddingBottom: spacing.mdd,
+    },
+    headerContent: {
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between' as const,
+        alignItems: 'center' as const,
+        paddingHorizontal: spacing.lg,
+        paddingTop: SCREEN_HEIGHT * 0.07,
+    },
+    headerLeft: {
+        flex: 1,
+    },
+    titleContainer: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        gap: spacing.xs,
+        flex: 1,
+        justifyContent: 'center' as const,
+    },
+    title: {
+        fontSize: typography.xxl,
+        fontWeight: '700' as const,
+        color: Colors.white,
+    },
+    headerActions: {
+        flexDirection: 'row' as const,
+        gap: spacing.sm,
+        flex: 1,
+        justifyContent: 'flex-end' as const,
+    },
+    headerIcon: {
+        width: typography.xl,
+        height: typography.xl,
+        tintColor: Colors.white,
+    },
+    optionsDropdownContainer: {
+        position: 'absolute' as const,
+        top: SCREEN_HEIGHT * 0.07 + spacing.xl,
+        right: spacing.lg,
+        zIndex: 1000,
+    },
+    addDropdownContainer: {
+        position: 'absolute' as const,
+        top: SCREEN_HEIGHT * 0.07 + spacing.xl,
+        right: spacing.lg * 2,
+        zIndex: 1000,
+    },
+    queueDropdownContainer: {
+        position: 'absolute' as const,
+        top: SCREEN_HEIGHT * 0.07 + spacing.xl,
+        right: spacing.lg * 5,
+        zIndex: 1000,
+    },
+    dropdownMenu: {
+        backgroundColor: Colors.white,
+        borderRadius: 8,
+        paddingVertical: spacing.sm,
+        shadowColor: Colors.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 8,
+        minWidth: 180,
+    },
+    dropdownItem: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        paddingLeft: spacing.md,
+        paddingRight: spacing.lg,
+        paddingVertical: spacing.sm,
+        gap: spacing.sm,
+    },
+    dropdownText: {
+        fontSize: typography.md,
+        color: Colors.black,
+        fontWeight: '400' as const,
+        marginLeft: spacing.sm,
+    },
+    dropdownSeparator: {
+        height: 1,
+        backgroundColor: Colors.lightGray,
+        marginVertical: spacing.xs,
+        marginHorizontal: spacing.lg,
+    },
+    dropdownIcon: {
+        width: typography.md,
+        height: typography.md,
+    },
+    content: {
+        flex: 1,
+        backgroundColor: Colors.white,
+    },
+    gettingStartedCard: {
+        margin: spacing.lg,
+        backgroundColor: Colors.white,
+        borderRadius: 12,
+        padding: spacing.mdd,
+        shadowColor: Colors.black,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    cardHeader: {
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between' as const,
+        alignItems: 'flex-start' as const,
+        marginBottom: spacing.lg,
+    },
+    cardTitle: {
+        fontSize: typography.lg,
+        fontWeight: '700' as const,
+        color: Colors.black,
+        marginBottom: spacing.xs,
+    },
+    cardSubtitle: {
+        fontSize: typography.sm,
+        fontWeight: '400' as const,
+        color: Colors.gray,
+    },
+    closeIcon: {
+        width: typography.xxl,
+        height: typography.xxl,
+    },
+    optionCard: {
+        flexDirection: 'row' as const,
+        justifyContent: 'space-between' as const,
+        alignItems: 'center' as const,
+        paddingVertical: spacing.md,
+        paddingHorizontal: spacing.md,
+        borderWidth: 1,
+        borderColor: '#E1E1E1',
+        borderRadius: 8,
+        marginBottom: spacing.md,
+    },
+    optionContent: {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        flex: 1,
+    },
+    optionIconContainer: {
+        width: spacing.xl,
+        height: spacing.xl,
+        borderRadius: 6,
+        backgroundColor: '#FF474C33',
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+        marginRight: spacing.md,
+    },
+    optionIcon: {
+        width: typography.lg,
+        height: typography.lg,
+        tintColor: Colors.red,
+    },
+    optionText: {
+        flex: 1,
+    },
+    optionTitle: {
+        fontSize: typography.md,
+        fontWeight: '700' as const,
+        color: Colors.black,
+        marginBottom: spacing.xs,
+    },
+    optionDescription: {
+        fontSize: typography.xs,
+        fontWeight: '400' as const,
+        color: Colors.gray,
+    },
+    setupButton: {
+        backgroundColor: Colors.red,
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+        borderRadius: 6,
+    },
+    setupButtonText: {
+        color: Colors.white,
+        fontSize: typography.xs,
+        fontWeight: '500' as const,
+    },
+    emptyQueue: {
+        flex: 1,
+        justifyContent: 'center' as const,
+        alignItems: 'center' as const,
+        paddingHorizontal: spacing.xl,
+        marginTop: spacing.xxl,
+    },
+    emptyQueueText: {
+        fontSize: typography.lg,
+        fontWeight: '600' as const,
+        color: Colors.black,
+        marginBottom: spacing.sm,
+    },
+    emptyQueueSubtext: {
+        fontSize: typography.md,
+        color: Colors.gray,
+        textAlign: 'center' as const,
+    },
+}); 
