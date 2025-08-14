@@ -9,6 +9,7 @@ import { ArticleImageProvider } from '../context/ArticleImageContext';
 import { HybridUserProvider, useHybridUser } from '../context/HybridUserContext';
 import { ThemeProvider as AppThemeProvider } from '../context/ThemeContext';
 import { TopPicksProvider } from '../context/TopPicksContext';
+import { TTSProvider } from '../context/TTSContext';
 import { withPersistedQueryClient } from '../lib/queryClient';
 
 function LoadingScreen() {
@@ -59,24 +60,58 @@ function AuthCheck() {
   const isArticleDetail = segments[0] === 'article-detail';
   const isTextToSpeech = segments[0] === 'text-to-speech';
 
+  // Show loading screen while checking authentication
   if (isLoading) {
     return <LoadingScreen />;
   }
 
+  // If user is authenticated and trying to access auth screens, redirect to home
   if (user) {
-    if (inAuthGroup || isWelcomeScreen) {
+    if (inAuthGroup || isWelcomeScreen || inOnboardingGroup) {
       return <Redirect href="/(tabs)" />;
     }
     return null;
   }
+
+  // If user is not authenticated and trying to access protected screens, redirect to welcome
   if (!user && !isLoading) {
-    if (inTabsGroup || inOnboardingGroup || isArticleDetail || isTextToSpeech) {
+    if (inTabsGroup || isArticleDetail || isTextToSpeech) {
       return <Redirect href="/welcome" />;
     }
     return null;
   }
 
-  return null;
+  // Show loading screen during initial app load
+  return <LoadingScreen />;
+}
+
+function AppContent() {
+  const { user, isLoading } = useHybridUser();
+
+  // Show loading screen during initial authentication check
+  if (isLoading || user === undefined) {
+    return <LoadingScreen />;
+  }
+
+  // If user is authenticated, only show authenticated screens
+  if (user) {
+    return (
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="article-detail" options={{ headerShown: false }} />
+        <Stack.Screen name="text-to-speech" options={{ headerShown: false }} />
+      </Stack>
+    );
+  }
+
+  // If user is not authenticated, show unauthenticated screens
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="welcome" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+    </Stack>
+  );
 }
 
 export default function RootLayout() {
@@ -114,15 +149,10 @@ export default function RootLayout() {
             <ArticleProvider>
               <ArticleImageProvider>
                 <TopPicksProvider>
-                  <AuthCheck />
-                  <Stack screenOptions={{ headerShown: false }}>
-                    <Stack.Screen name="welcome" options={{ headerShown: false }} />
-                    <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="article-detail" options={{ headerShown: false }} />
-                    <Stack.Screen name="text-to-speech" options={{ headerShown: false }} />
-                  </Stack>
+                  <TTSProvider>
+                    <AuthCheck />
+                    <AppContent />
+                  </TTSProvider>
                 </TopPicksProvider>
               </ArticleImageProvider>
             </ArticleProvider>

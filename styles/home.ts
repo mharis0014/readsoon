@@ -79,6 +79,7 @@ export const homeStyles = StyleSheet.create({
     sectionHeader: {
         marginTop: spacing.lg,
         marginHorizontal: spacing.md,
+        marginBottom: spacing.sm,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
