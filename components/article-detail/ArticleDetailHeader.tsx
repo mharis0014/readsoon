@@ -58,9 +58,6 @@ export default function ArticleDetailHeader({
                             <Image source={ICONS.CLOSE_LIGHT} style={styles.backButtonIcon} />
                         </TouchableOpacity>
                         <View style={styles.headerActions}>
-                            <TouchableOpacity onPress={onBookmark} style={styles.actionButton}>
-                                <Image source={ICONS.PLUS} style={styles.actionButtonIcon} />
-                            </TouchableOpacity>
                             <TouchableOpacity onPress={onShare} style={styles.actionButton}>
                                 <Image source={ICONS.DOTS_THREE_CIRCLE} style={styles.actionButtonIcon} />
                             </TouchableOpacity>

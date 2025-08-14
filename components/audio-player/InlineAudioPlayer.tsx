@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { BlurView } from 'expo-blur';
-import { useTextToSpeech } from '../../hooks/useTextToSpeech';
+import { useRouter } from 'expo-router';
+import { useTTS } from '../../context/TTSContext';
 
 interface InlineAudioPlayerProps {
     articleContent: string;
@@ -20,30 +21,36 @@ export default function InlineAudioPlayer({
     articleImage,
     onClose
 }: InlineAudioPlayerProps) {
+    const router = useRouter();
     const {
         state: ttsState,
         speak,
         pause,
         resume,
         stop,
-        seek
-    } = useTextToSpeech(articleContent);
+        seek,
+        setCurrentText
+    } = useTTS();
 
     const currentIsPlaying = ttsState.isPlaying;
 
-    // Auto-play audio when component mounts
+    // Set current text and auto-play audio when component mounts
     useEffect(() => {
-        if (articleContent && articleContent.trim().length > 0 && !currentIsPlaying && !ttsState.isPaused) {
-            // Small delay to ensure the component is fully mounted
-            const timer = setTimeout(() => {
-                speak().catch(error => {
-                    console.error('Auto-play failed:', error);
-                });
-            }, 500);
+        if (articleContent && articleContent.trim().length > 0) {
+            setCurrentText(articleContent);
 
-            return () => clearTimeout(timer);
+            if (!currentIsPlaying && !ttsState.isPaused) {
+                // Small delay to ensure the component is fully mounted
+                const timer = setTimeout(() => {
+                    speak().catch((error: any) => {
+                        console.error('Auto-play failed:', error);
+                    });
+                }, 500);
+
+                return () => clearTimeout(timer);
+            }
         }
-    }, [articleContent, currentIsPlaying, ttsState.isPaused, speak]);
+    }, [articleContent, currentIsPlaying, ttsState.isPaused, speak, setCurrentText]);
 
     const handlePlayPause = async () => {
         try {
@@ -75,55 +82,89 @@ export default function InlineAudioPlayer({
         seek(newPosition);
     };
 
+    const handleOpenFullScreen = () => {
+        // Store the image globally so TTS screen can access it
+        (global as any).currentArticleImage = articleImage;
+
+        router.push({
+            pathname: '/text-to-speech',
+            params: {
+                content: articleContent,
+                title: articleTitle,
+                source: articleAuthor
+            }
+        });
+    };
+
     return (
         <View style={styles.container}>
-            <BlurView intensity={20} tint="light" style={styles.blurContainer}>
-                {/* Album Art */}
-                <View style={styles.albumArtContainer}>
-                    {articleImage ? (
-                        <Image
-                            source={articleImage}
-                            style={styles.albumArt}
-                            contentFit="cover"
-                        />
-                    ) : (
-                        <View style={styles.placeholderArt}>
-                            <Text style={styles.placeholderText}>
-                                {articleTitle.charAt(0).toUpperCase()}
-                            </Text>
-                        </View>
-                    )}
-                </View>
+            <Pressable onPress={handleOpenFullScreen}>
+                <BlurView intensity={20} tint="light" style={styles.blurContainer}>
+                    {/* Album Art */}
+                    <View style={styles.albumArtContainer}>
+                        {articleImage ? (
+                            <Image
+                                source={articleImage}
+                                style={styles.albumArt}
+                                contentFit="cover"
+                            />
+                        ) : (
+                            <View style={styles.placeholderArt}>
+                                <Text style={styles.placeholderText}>
+                                    {articleTitle.charAt(0).toUpperCase()}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
 
-                {/* Audio Information */}
-                <View style={styles.audioInfo}>
-                    <Text style={styles.title} numberOfLines={1}>
-                        {articleTitle}
-                    </Text>
-                    <Text style={styles.author} numberOfLines={1}>
-                        {articleAuthor}
-                    </Text>
-                </View>
+                    {/* Audio Information */}
+                    <View style={styles.audioInfo}>
+                        <Text style={styles.title} numberOfLines={1}>
+                            {articleTitle}
+                        </Text>
+                        <Text style={styles.author} numberOfLines={1}>
+                            {articleAuthor}
+                        </Text>
+                    </View>
 
-                {/* Playback Controls */}
-                <View style={styles.controls}>
-                    <TouchableOpacity onPress={handleFastBackward} style={styles.controlButton}>
-                        <Ionicons name="play-back" size={20} color="#666" />
-                    </TouchableOpacity>
+                    {/* Playback Controls */}
+                    <View style={styles.controls}>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                handleFastBackward();
+                            }}
+                            style={styles.controlButton}
+                        >
+                            <Ionicons name="play-back" size={20} color="#666" />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handlePlayPause} style={styles.playButton}>
-                        <Ionicons
-                            name={currentIsPlaying ? "pause" : "play"}
-                            size={24}
-                            color="#fff"
-                        />
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                handlePlayPause();
+                            }}
+                            style={styles.playButton}
+                        >
+                            <Ionicons
+                                name={currentIsPlaying ? "pause" : "play"}
+                                size={24}
+                                color="#fff"
+                            />
+                        </TouchableOpacity>
 
-                    <TouchableOpacity onPress={handleFastForward} style={styles.controlButton}>
-                        <Ionicons name="play-forward" size={20} color="#666" />
-                    </TouchableOpacity>
-                </View>
-            </BlurView>
+                        <TouchableOpacity
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                handleFastForward();
+                            }}
+                            style={styles.controlButton}
+                        >
+                            <Ionicons name="play-forward" size={20} color="#666" />
+                        </TouchableOpacity>
+                    </View>
+                </BlurView>
+            </Pressable>
         </View>
     );
 }
@@ -132,17 +173,16 @@ const styles = StyleSheet.create({
     container: {
         position: 'absolute',
         bottom: 90,
-        borderRadius: 12,
         left: 16,
         right: 16,
         zIndex: 1000,
+        borderRadius: 12,
     },
     blurContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        borderRadius: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
         shadowColor: '#000',
         shadowOffset: {

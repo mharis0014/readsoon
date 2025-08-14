@@ -6,7 +6,7 @@ import { ActivityIndicator, Alert, SafeAreaView, Text, TouchableOpacity, View } 
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useAudioPlayerTheme } from '../hooks/useAudioPlayerTheme';
-import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useTTS } from '../context/TTSContext';
 
 export default function TextToSpeechScreen() {
     const router = useRouter();
@@ -37,8 +37,9 @@ export default function TextToSpeechScreen() {
         stop,
         seek: ttsSeek,
         updateSpeed,
-        settings: ttsSettings
-    } = useTextToSpeech(articleContent);
+        settings: ttsSettings,
+        setCurrentText
+    } = useTTS();
 
     const currentIsPlaying = ttsState.isPlaying;
     // Use seekPosition when paused, otherwise use current position
@@ -49,19 +50,23 @@ export default function TextToSpeechScreen() {
     // Simple progress calculation
     const progressPercent = currentDuration > 0 ? (currentPosition / currentDuration) * 100 : 0;
 
-    // Auto-play audio when component mounts
+    // Set current text and auto-play audio when component mounts
     useEffect(() => {
-        if (articleContent && articleContent.trim().length > 0 && !currentIsPlaying && !ttsState.isPaused) {
-            // Small delay to ensure the component is fully mounted
-            const timer = setTimeout(() => {
-                speak().catch(error => {
-                    console.error('Auto-play failed:', error);
-                });
-            }, 500);
+        if (articleContent && articleContent.trim().length > 0) {
+            setCurrentText(articleContent);
 
-            return () => clearTimeout(timer);
+            if (!currentIsPlaying && !ttsState.isPaused) {
+                // Small delay to ensure the component is fully mounted
+                const timer = setTimeout(() => {
+                    speak().catch((error: any) => {
+                        console.error('Auto-play failed:', error);
+                    });
+                }, 500);
+
+                return () => clearTimeout(timer);
+            }
         }
-    }, [articleContent, currentIsPlaying, ttsState.isPaused, speak]);
+    }, [articleContent, currentIsPlaying, ttsState.isPaused, speak, setCurrentText]);
 
     const handlePlayPause = async () => {
         try {
