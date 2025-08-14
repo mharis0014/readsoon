@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -49,6 +49,20 @@ export default function TextToSpeechScreen() {
     // Simple progress calculation
     const progressPercent = currentDuration > 0 ? (currentPosition / currentDuration) * 100 : 0;
 
+    // Auto-play audio when component mounts
+    useEffect(() => {
+        if (articleContent && articleContent.trim().length > 0 && !currentIsPlaying && !ttsState.isPaused) {
+            // Small delay to ensure the component is fully mounted
+            const timer = setTimeout(() => {
+                speak().catch(error => {
+                    console.error('Auto-play failed:', error);
+                });
+            }, 500);
+
+            return () => clearTimeout(timer);
+        }
+    }, [articleContent, currentIsPlaying, ttsState.isPaused, speak]);
+
     const handlePlayPause = async () => {
         try {
             if (currentIsPlaying) {
@@ -87,7 +101,7 @@ export default function TextToSpeechScreen() {
     };
 
     // Sync speed index with TTS settings
-    React.useEffect(() => {
+    useEffect(() => {
         const currentSpeed = ttsSettings.speed || 1.0;
         const newSpeedIndex = speedOptions.findIndex(speed => Math.abs(speed - currentSpeed) < 0.01);
         if (newSpeedIndex !== -1 && newSpeedIndex !== speedIndex) {

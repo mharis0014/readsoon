@@ -7,6 +7,7 @@ import ArticleBottomNav from '../components/article-detail/ArticleBottomNav';
 import ArticleContent from '../components/article-detail/ArticleContent';
 import ArticleDetailHeader from '../components/article-detail/ArticleDetailHeader';
 import ArticleErrorState from '../components/article-detail/ArticleErrorState';
+import InlineAudioPlayer from '../components/audio-player/InlineAudioPlayer';
 import ShareModal from '../components/modals/ShareModal';
 import { ARTICLE_CONSTANTS } from '../constants/Article';
 import { type ArticleData } from '../data/home';
@@ -27,6 +28,7 @@ export default function ArticleDetailScreen() {
     const [isReadingMode, setIsReadingMode] = React.useState(false);
     const [readerTheme, setReaderTheme] = React.useState<'light' | 'sepia' | 'dark'>('light');
     const [fontSizePx, setFontSizePx] = React.useState<number>(16);
+    const [showAudioPlayer, setShowAudioPlayer] = React.useState(false);
 
     const {
         article,
@@ -66,6 +68,14 @@ export default function ArticleDetailScreen() {
             const originalUrl = ShareService.getOriginalUrl(article);
             if (originalUrl) await ShareService.openInBrowser(originalUrl);
         }
+    };
+
+    const handlePlayAudio = () => {
+        setShowAudioPlayer(true);
+    };
+
+    const handleCloseAudioPlayer = () => {
+        setShowAudioPlayer(false);
     };
 
     const handleScroll = (event: any) => {
@@ -199,6 +209,7 @@ export default function ArticleDetailScreen() {
             <ArticleBottomNav
                 onShare={handleShare}
                 onOpenInBrowser={handleOpenInBrowser}
+                onPlayAudio={handlePlayAudio}
                 articleContent={displayArticle.content || ''}
                 articleTitle={displayArticle.title || 'Untitled'}
                 articleSource={displayArticle.author || 'Unknown Author'}
@@ -206,6 +217,16 @@ export default function ArticleDetailScreen() {
                 isReadingMode={isReadingMode}
                 onToggleReadingMode={() => setIsReadingMode(v => !v)}
             />
+
+            {showAudioPlayer && (
+                <InlineAudioPlayer
+                    articleContent={displayArticle.content || ''}
+                    articleTitle={displayArticle.title || 'Untitled'}
+                    articleAuthor={displayArticle.author || 'Unknown Author'}
+                    articleImage={displayArticle.image}
+                    onClose={handleCloseAudioPlayer}
+                />
+            )}
 
             <ShareModal
                 visible={showShareModal}

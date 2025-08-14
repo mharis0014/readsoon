@@ -247,10 +247,74 @@ export function useTextToSpeech(text: string) {
 
         if (wasPlaying) {
             setTimeout(() => {
-                speak();
+                // Use the remaining text directly instead of relying on state
+                const textToSpeak = remainingText;
+                setState(prev => ({ ...prev, error: undefined }));
+
+                androidTTSSpeak(textToSpeak, {
+                    rate: settings.speed,
+                    pitch: settings.pitch,
+                    volume: settings.volume,
+                    voice: settings.voice || undefined,
+                    onStart: () => {
+                        setState(prev => ({
+                            ...prev,
+                            isPlaying: true,
+                            isPaused: false,
+                            position: newPosition,
+                            remainingText: remainingText,
+                            error: undefined
+                        }));
+                        startTimer();
+                    },
+                    onDone: () => {
+                        if (isPausingRef.current) {
+                            return;
+                        }
+
+                        setState(prev => ({
+                            ...prev,
+                            isPlaying: false,
+                            isPaused: false,
+                            position: 0,
+                            remainingText: undefined,
+                            seekPosition: undefined,
+                            error: undefined
+                        }));
+                        stopTimer();
+                    },
+                    onStopped: () => {
+                        if (isPausingRef.current) {
+                            isPausingRef.current = false;
+                            return;
+                        }
+
+                        setState(prev => ({
+                            ...prev,
+                            isPlaying: false,
+                            isPaused: false,
+                            remainingText: undefined,
+                            seekPosition: undefined,
+                            error: undefined
+                        }));
+                        stopTimer();
+                    },
+                    onError: (error: any) => {
+                        console.error('TTS Error:', error);
+                        setState(prev => ({
+                            ...prev,
+                            isPlaying: false,
+                            isPaused: false,
+                            remainingText: undefined,
+                            seekPosition: undefined,
+                            error: error?.message || 'TTS Error'
+                        }));
+                        stopTimer();
+                    },
+                });
             }, 100);
         }
-    }, [text, state.isPlaying, speak]);
+    }, [text, state.isPlaying, settings, startTimer, stopTimer]);
 
     const updateSpeed = useCallback((newSpeed: number) => {
         setSettings(prev => ({ ...prev, speed: newSpeed }));
