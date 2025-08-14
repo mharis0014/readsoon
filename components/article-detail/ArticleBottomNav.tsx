@@ -1,6 +1,5 @@
 import { typography } from '@/utils/responsive';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { Colors } from '../../constants/Colors';
@@ -9,6 +8,7 @@ import { articleDetailStyles as styles } from '../../styles/article-detail';
 interface ArticleBottomNavProps {
     onShare: () => void;
     onOpenInBrowser: () => void;
+    onPlayAudio: () => void;
     articleContent: string;
     articleTitle?: string;
     articleSource?: string;
@@ -20,6 +20,7 @@ interface ArticleBottomNavProps {
 export default function ArticleBottomNav({
     onShare,
     onOpenInBrowser,
+    onPlayAudio,
     articleContent,
     articleTitle,
     articleSource,
@@ -27,25 +28,10 @@ export default function ArticleBottomNav({
     isReadingMode = false,
     onToggleReadingMode
 }: ArticleBottomNavProps) {
-    const router = useRouter();
-
-    const handleTTS = () => {
-        // Store the image globally so TTS screen can access it
-        (global as any).currentArticleImage = articleImage;
-
-        router.push({
-            pathname: '/text-to-speech',
-            params: {
-                content: articleContent,
-                title: articleTitle || 'Article',
-                source: articleSource || 'Unknown Source'
-            }
-        });
-    };
 
     return (
         <View style={styles.bottomNav}>
-            <TouchableOpacity style={styles.navButton} onPress={handleTTS}>
+            <TouchableOpacity style={styles.navButton} onPress={onPlayAudio}>
                 <Ionicons name="play-outline" size={typography.xxl} color="#6b7280" />
             </TouchableOpacity>
 
